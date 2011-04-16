@@ -24,8 +24,31 @@
     </script>
   </head>
   <body>
-    
-    ${next.body()}
-    
+    <div data-role="page">
+      <%def name="header(title)">
+        <div data-role="header">
+          <h1>${title}</h1>
+          <a href="/index.htm" data-icon="gear" class="ui-btn-right">Options</a>
+        </div>
+      </%def>
+      ${next.body()}
+      <%def name="footer(active)">
+        <div data-role="footer" data-id="footer" data-position="fixed">
+          <div data-role="navbar">
+            <ul>
+              <li>
+                <a href="/" data-direction="reverse"
+                    class="ui-state-persist ${active == 'listings' and 'ui-btn-active' or ''}">
+                  Listings</a>
+              </li>
+              <li>
+                <a href="/map/" class="ui-state-persist ${active == 'map' and 'ui-btn-active' or ''}">
+                  Map</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </%def>
+    </div>
   </body>
 </html>

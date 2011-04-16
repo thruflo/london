@@ -10,10 +10,7 @@ class RelayToTemplate(RequestHandler):
     """
     """
     
-    def get(self, name):
-        
-        import logging
-        logging.info(name)
+    def get(self, name='listings'):
         
         return self.render('%s.tmpl' % name)
         

@@ -28,6 +28,7 @@ setup(
         'weblayer',
         'PasteScript',
         'WSGIUtils',
+        'SQLAlchemy==0.6.7',
         'setuptools-git==0.3.4'
     ],
     entry_points = {

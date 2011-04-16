@@ -5,7 +5,6 @@
 """
 
 from weblayer import Bootstrapper, WSGIApplication
-from urls import mapping
 
 def factory(global_config, **local_conf):
     """
@@ -18,7 +17,12 @@ def factory(global_config, **local_conf):
     # make `config['template_directories']` a list
     config['template_directories'] = [config['template_directory_path']]
     
+    # create the db session
+    import model
+    model.db = model.db_factory(config)
+    
     # instantiate the bootstrapper
+    from urls import mapping
     bootstrapper = Bootstrapper(settings=config, url_mapping=mapping)
     
     # return a bootstrapped `WSGIApplication`

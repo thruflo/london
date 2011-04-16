@@ -7,7 +7,10 @@
 from views import RelayToTemplate
 
 mapping = [(
-        r'/(.*)\.htm',
+        r'/(.*)\/',
+        RelayToTemplate
+    ), (
+        r'/',
         RelayToTemplate
     )
 ]
