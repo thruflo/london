@@ -6,7 +6,6 @@ This is me having a little bit of fun converting my old posts on
 
 Currently just an experiment in progress: this is pre-alpha software.
 
-.. http://thruflo.com/london/
-http://jquerymobile.com/
-http://code.google.com/apis/maps/documentation/javascript/
-
+[places I recommend in London]: http://thruflo.com/london/
+[jquery.mobile]: http://jquerymobile.com/
+[Google Maps JavaScript API V3]: http://code.google.com/apis/maps/documentation/javascript/

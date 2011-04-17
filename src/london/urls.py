@@ -4,13 +4,26 @@
 """ 
 """
 
-from views import RelayToTemplate
+from views import *
 
-mapping = [(
+mapping = [
+    
+    (
+        r'/categories/(\w*)/',
+        CategoryListing
+    ), 
+    
+    (
+        r'/',
+        Listings
+    ),    
+    
+    
+    
+    
+    (
         r'/(.*)\/',
         RelayToTemplate
-    ), (
-        r'/',
-        RelayToTemplate
     )
+    
 ]

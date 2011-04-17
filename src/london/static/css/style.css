@@ -4,3 +4,29 @@
 .landscape {
 	/* landscape orientation changes go here! */
 }
+
+.glyphish .ui-btn-inner {
+  padding-top: 40px;
+}
+.glyphish .ui-icon {
+  width: 30px!important;
+  height: 30px!important;
+  margin-left: -15px !important;
+  box-shadow: none!important;
+  -moz-box-shadow: none!important;
+  -webkit-box-shadow: none!important;
+  -webkit-border-radius: none !important;
+  border-radius: none !important;
+}
+  .ui-icon-london-coffee {
+    background: url('/static/img/icons/coffee.png') 50% 50% no-repeat;
+  }
+  .ui-icon-london-snack {
+    background: url('/static/img/icons/snack.png') 50% 50% no-repeat;
+  }
+  .ui-icon-london-meal {
+    background: url('/static/img/icons/meal.png') 50% 50% no-repeat;
+  }
+  .ui-icon-london-drink {
+    background: url('/static/img/icons/drink.png') 50% 50% no-repeat;
+  }

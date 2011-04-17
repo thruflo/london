@@ -14,11 +14,15 @@ import os
 import sys
 import re
 
+special_character = re.compile(r'[^a-z0-9]', re.U | re.I)
+
 from os.path import dirname, join as join_path
 
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Table, Column, MetaData, ForeignKey
-from sqlalchemy import Boolean, Date, Integer, PickleType, Unicode, UnicodeText
+from sqlalchemy import Boolean, Date, Float, Integer, LargeBinary 
+from sqlalchemy import PickleType, Unicode, UnicodeText
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper, sessionmaker, relation, synonym
 
@@ -56,11 +60,16 @@ class User(SQLModel):
     __tablename__ = 'users'
     
     id = Column(Integer, primary_key=True, nullable=False)
+    
     name = Column(Unicode)
+    
     username = Column(Unicode, unique=True)
     password = Column(Unicode)
+    
     email_address = Column(Unicode, unique=True)
+    
     is_admin = Column(Boolean, default=False)
+    
     viewed = relation("Place", secondary=places_users_viewed)
     bookmarked = relation("Place", secondary=places_users_bookmarked)
     
@@ -100,12 +109,26 @@ class Place(SQLModel):
     __tablename__ = 'places'
     
     id = Column(Integer, primary_key=True, nullable=False)
+    
     title = Column(Unicode, nullable=False, unique=True)
-    description = Column(UnicodeText)
+    description = Column(UnicodeText, nullable=False)
+    
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    
+    image = Column(LargeBinary)
+    address = Column(UnicodeText)
+    
+    google_place_reference = Column(Unicode)
+    foursquare_venue_id = Column(Unicode)
+    facebook_graph_id = Column(Unicode)
+    
     viewed = relation("User", secondary=places_users_viewed)
     bookmarked = relation("User", secondary=places_users_bookmarked)
+    
     categories = relation("Category", secondary=places_categories)
     tags = relation("Tag", secondary=places_tags)
+    
     
     def __repr__(self):
         return '<place title="%s">' % self.title
@@ -114,6 +137,8 @@ class Place(SQLModel):
     
     def bookmark(self, user, should_commit=True):
         if not user in self.bookmarked:
+            if should_commit:
+                db.begin()
             self.bookmarked.append(user)
             db.add(self)
             if should_commit:
@@ -122,11 +147,14 @@ class Place(SQLModel):
                 except IntegrityError, err:
                     logging.err(err)
                     db.rollback()
-        
+                
+            
         
     
     def unbookmark(self, user, should_commit=True):
         if user in self.bookmarked:
+            if should_commit:
+                db.begin()
             self.bookmarked.remove(user)
             db.add(self)
             if should_commit:
@@ -135,10 +163,14 @@ class Place(SQLModel):
                 except IntegrityError, err:
                     logging.err(err)
                     db.rollback()
+                
+            
         
     
     def mark_viewed(self, user, should_commit=True):
         if not user in self.viewed:
+            if should_commit:
+                db.begin()
             self.viewed.append(user)
             db.add(self)
             if should_commit:
@@ -168,8 +200,29 @@ class Category(SQLModel):
     __tablename__ = 'categories'
     
     id = Column(Integer, primary_key=True, nullable=False)
+    
     value = Column(Unicode, unique=True)
+    label = Column(Unicode)
+    
+    sort_order = Column(Integer, nullable=False)
+    
     places = relation("Place", secondary=places_categories)
+    
+    @classmethod
+    def get_all(cls):
+        query = db.query(cls).order_by(cls.sort_order)
+        return query.all()
+        
+    
+    
+    @classmethod
+    def get_by_value(cls, value):
+        if not isinstance(value, unicode):
+            value = unicode(value)
+        query = db.query(cls).filter_by(value=value)
+        return query.one()
+        
+    
     
     def __repr__(self):
         return '<category value="%s">' % self.value
@@ -184,8 +237,20 @@ class Tag(SQLModel):
     __tablename__ = 'tags'
     
     id = Column(Integer, primary_key=True, nullable=False)
+    
     value = Column(Unicode, unique=True)
+    label = Column(Unicode)
+    
     places = relation("Place", secondary=places_tags)
+    
+    @classmethod
+    def get_by_value(cls, value):
+        if not isinstance(value, unicode):
+            value = unicode(value)
+        query = db.query(cls).filter_by(value=value)
+        return query.one()
+        
+    
     
     def __repr__(self):
         return '<tag value="%s">' % self.value
@@ -205,8 +270,35 @@ def db_factory(settings):
     else: # use postgresql in production
         raise NotImplementedError
     SQLModel.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=engine, autocommit=True)
     session = Session()
     return session
+    
+
+def bootstrap(session):
+    """ Generate a fresh copy of the database.
+    """
+    
+    session.begin()
+    
+    # create categories
+    i = 0
+    labels = (
+        'Coffee',
+        'Snack',
+        'Meal',
+        'Drink'
+    )
+    for item in labels:
+        value = special_character.sub('_', item.lower())
+        category = Category(value=value, label=item, sort_order=i)
+        session.add(category)
+    
+    # commit changes
+    try:
+        session.commit()
+    except IntegrityError, err:
+        logging.error(err)
+        session.rollback()
     
 

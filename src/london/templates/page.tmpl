@@ -39,10 +39,17 @@
               <li>
                 <a href="/" data-direction="reverse"
                     class="ui-state-persist ${active == 'listings' and 'ui-btn-active' or ''}">
-                  Listings</a>
+                  Categories</a>
               </li>
               <li>
-                <a href="/map/" class="ui-state-persist ${active == 'map' and 'ui-btn-active' or ''}">
+                <a href="/bookmarked/"
+                    data-direction="${active == 'map' and 'reverse' or ''}"
+                    class="ui-state-persist ${active == 'bookmarked' and 'ui-btn-active' or ''}">
+                  Bookmarked</a>
+              </li>
+              <li>
+                <a href="/map/"
+                    class="ui-state-persist ${active == 'map' and 'ui-btn-active' or ''}">
                   Map</a>
               </li>
             </ul>

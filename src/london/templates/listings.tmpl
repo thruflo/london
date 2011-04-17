@@ -1,16 +1,17 @@
 <%inherit file="page.tmpl"/>
 
-${self.header('What are you looking for?')}
+${self.header('Categories')}
 
 <div data-role="content">  
-  <p>Page content goes here.</p>
-  <p>Page content goes here.</p>
-  <p>Page content goes here.</p>
-  <p>Page content goes here.</p>
-  <p>Page content goes here.</p>
-  <a href="foo.htm" data-transition="flip">
-    open foo
-  </a>
+  % for item in categories:
+    <a href="/categories/${item.value}/" 
+        class="glyphish"
+        data-role="button" 
+        data-icon="london-${item.value}"
+        data-iconpos="top">
+      ${item.label}
+    </a>
+  % endfor
 </div>
 
 ${self.footer('listings')}

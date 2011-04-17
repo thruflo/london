@@ -1,0 +1,12 @@
+<%inherit file="page.tmpl"/>
+
+${self.header(category.label)}
+
+<div data-role="content">  
+  % for item in places:
+    <a href="/places/${item.id}/" data-role="button">
+      ${item.title}</a>
+  % endfor
+</div>
+
+${self.footer('listings')}
