@@ -17,17 +17,21 @@ def factory(global_config, **local_conf):
     # make `config['template_directories']` a list
     config['template_directories'] = [config['template_directory_path']]
     
-    if config.get('dev_mode', False) and config.get('bootstrap_db', False):
+    if config.has_key('dev_mode') and config.has_key('bootstrap_db'):
         import os
         if os.path.exists(config['sqlite_path']):
-            os.unlink()
+            os.unlink(config['sqlite_path'])
         
     # create the db session
     import model
     model.db = model.db_factory(config)
     
-    if config.get('dev_mode', False) and config.get('bootstrap_db', False):
+    if config.has_key('dev_mode') and config.has_key('bootstrap_db'):
         model.bootstrap(model.db)
+    
+    if config.has_key('shell'):
+        import code
+        code.interact()
     
     # instantiate the bootstrapper
     from urls import mapping

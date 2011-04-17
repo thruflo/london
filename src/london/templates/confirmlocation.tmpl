@@ -1,0 +1,18 @@
+<%inherit file="page.tmpl"/>
+
+<div data-role="dialog">
+  <div data-role="header">
+    <h1>Location not available</h1>
+  </div>
+  <div data-role="content">  
+    <p>
+      Can't find your current location.  This limits some functionality of the app.
+    </p>
+    <a id="try-again" href="/" 
+        data-ajax="false" data-role="button" data-icon="refresh" data-iconpos="top">
+      Try again</a>
+    <a href="#" 
+        data-rel="back" data-role="button"  data-icon="delete" data-iconpos="top">
+      Ignore</a>
+  </div>
+</div>

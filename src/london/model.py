@@ -20,11 +20,13 @@ from os.path import dirname, join as join_path
 
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Table, Column, MetaData, ForeignKey
-from sqlalchemy import Boolean, Date, Float, Integer, LargeBinary 
+from sqlalchemy import BigInteger, Boolean, Date, Float, Integer, LargeBinary 
 from sqlalchemy import PickleType, Unicode, UnicodeText
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper, sessionmaker, relation, synonym
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import asc
 
 SQLModel = declarative_base()
 
@@ -116,19 +118,19 @@ class Place(SQLModel):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     
-    image = Column(LargeBinary)
-    address = Column(UnicodeText)
+    image = Column(LargeBinary, nullable=False)
+    address = Column(UnicodeText, nullable=False)
+    url = Column(Unicode)
     
-    google_place_reference = Column(Unicode)
-    foursquare_venue_id = Column(Unicode)
-    facebook_graph_id = Column(Unicode)
+    google_place_reference = Column(Unicode, nullable=False, unique=True)
+    foursquare_venue_id = Column(Unicode, nullable=False, unique=True)
+    facebook_graph_id = Column(Unicode, nullable=False, unique=True)
     
     viewed = relation("User", secondary=places_users_viewed)
     bookmarked = relation("User", secondary=places_users_bookmarked)
     
     categories = relation("Category", secondary=places_categories)
     tags = relation("Tag", secondary=places_tags)
-    
     
     def __repr__(self):
         return '<place title="%s">' % self.title
@@ -192,6 +194,32 @@ class Place(SQLModel):
         
     
     
+    @classmethod
+    def get_by_category(cls, value, ll):
+        """
+        """
+        
+        query = db.query(cls).join('categories').filter(Category.value==value)
+        
+        # if we have a location, sort by nearest to the user
+        if ll is not None:
+            parts = ll.split('%2C')
+            latitude = parts[0]
+            longitude = parts[1]
+            query = query.order_by(
+                asc(
+                    func.abs(Place.latitude - latitude) +
+                    func.abs(Place.longitude - longitude)
+                )
+            )
+        else: # otherwise sort by title
+            query.order_by(Place.title)
+        
+        return query.all()
+        
+    
+    
+
 
 class Category(SQLModel):
     """
@@ -220,7 +248,7 @@ class Category(SQLModel):
         if not isinstance(value, unicode):
             value = unicode(value)
         query = db.query(cls).filter_by(value=value)
-        return query.one()
+        return query.first()
         
     
     
@@ -263,6 +291,9 @@ def db_factory(settings):
     """
     """
     
+    import logging
+    logging.info(settings)
+    
     # use sqlite in development
     if settings['dev_mode']: 
         sqlite_path = 'sqlite:///%s' % os.path.abspath(settings['sqlite_path'])
@@ -276,7 +307,7 @@ def db_factory(settings):
     
 
 def bootstrap(session):
-    """ Generate a fresh copy of the database.
+    """ Populate the database.
     """
     
     session.begin()
@@ -284,16 +315,64 @@ def bootstrap(session):
     # create categories
     i = 0
     labels = (
-        'Coffee',
-        'Snack',
-        'Meal',
-        'Drink'
+        u'Coffee',
+        u'Snack',
+        u'Meal',
+        u'Drink'
     )
     for item in labels:
         value = special_character.sub('_', item.lower())
         category = Category(value=value, label=item, sort_order=i)
         session.add(category)
     
+    # parse places
+    
+    from glob import glob
+    from yaml import load, Loader
+    
+    here = os.path.dirname(__file__)
+    data_directory_path = os.path.join(here, 'static', 'data')
+    directories = glob(os.path.join(data_directory_path, '*'))
+    
+    for path in directories:
+        
+        index_file = open(os.path.join(path, 'index.yaml'))
+        data = load(index_file, Loader=Loader)
+        index_file.close()
+        
+        image_file = open(os.path.join(path, 'thumbnail.jpg'), 'rb')
+        image_data = image_file.read()
+        image_file.close()
+        
+        place = Place(
+            title = data['title'],
+            description = data['description'],
+            latitude = float(data['latitude']),
+            longitude = float(data['longitude']),
+            image = image_data,
+            address = data['address'],
+            url = data['url'],
+            google_place_reference = data['google_place_reference'],
+            foursquare_venue_id = data['foursquare_venue_id'],
+            facebook_graph_id = data['facebook_graph_id']
+        )
+        
+        for value in data['categories']:
+            category = Category.get_by_value(value)
+            if category not in place.categories:
+                place.categories.append(category)
+        
+        for value in data['tags']:
+            try:
+                tag = Tag.get_by_value(value)
+            except NoResultFound:
+                tag = Tag(value=value, label=value)
+                session.add(tag)
+            if tag not in place.tags:
+                place.tags.append(tag)
+            
+        session.add(place)
+        
     # commit changes
     try:
         session.commit()

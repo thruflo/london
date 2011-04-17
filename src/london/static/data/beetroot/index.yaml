@@ -1,0 +1,44 @@
+
+title: Beatroot
+
+description: |
+  <p>
+    Beatroot is a little cafe serving a daily buffet of vegetarian goodness, 
+    along with smoothies and cakes.
+  </p>
+  <p>
+    Perched on the side of Berwick street, you get to watch the fruit and veg
+    market as the stallholders badger each other over football results and
+    the pimps shift past on their way to the alley of shame.
+  </p>
+  <p>
+    This is Soho at its best and its most filling.  Don't let the carnivores 
+    say nay.
+  </p>
+
+open: |
+  Monday - Friday 9am - 9pm
+  Saturday 11am - 9pm
+  Bank Holidays 11am - 9pm
+
+address: |
+  92 Berwick Street
+  Soho
+  London W1F OQD
+
+latitude: '51.513403'
+longitude: '-0.134786'
+
+google_place_reference: '17866274862783016086'
+foursquare_venue_id: '140048'
+facebook_graph_id: '102526206476567'
+
+url: 'http://www.beatroot.org.uk/'
+
+categories:
+- snack
+
+tags:
+- character
+- cheap
+- vegetarian

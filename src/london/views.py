@@ -39,7 +39,9 @@ class CategoryListing(RequestHandler):
         logging.warning('validate user input')
         
         category = model.Category.get_by_value(value)
-        places = category.places
+        
+        ll = self.request.cookies.get('ll', None)
+        places = model.Place.get_by_category(value, ll)
         
         return self.render('category.tmpl', category=category, places=places)
         

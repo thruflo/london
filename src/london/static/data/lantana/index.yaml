@@ -1,0 +1,40 @@
+
+title: Lantana
+
+description: |
+  <p>
+    Ever so slightly too trendy for its own good, Lantana thankfully also serves
+    some of the best coffee in town.
+  </p>
+  <p>
+    Tucked away on picturesque Charlotte Place, near the corner of Charlotte
+    Street and Googe Street, the coffee and drinks are optionally accompanied by
+    australian-influenced comfort food.
+  </p>
+
+open: |
+  Monday, Tuesday, Wednesday 8am - 6pm
+  Thursday Friday 8am - 9pm
+  Saturday Sunday 9am - 5pm
+
+address: |
+  13 Charlotte Place
+  Fiztrovia
+  London W1T 1SN
+
+latitude: '51.519113'
+longitude: '-0.136355'
+
+google_place_reference: '11530326573473255705'
+foursquare_venue_id: '154727'
+facebook_graph_id: '160647063952501'
+
+url: 'http://www.lantanacafe.co.uk/'
+
+categories:
+- coffee
+- snack
+
+tags:
+- trendy
+- australian

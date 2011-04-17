@@ -1,0 +1,42 @@
+
+title: Monmouth Coffee Company
+
+description: |
+  <p>
+    The finest of London coffee dispensers, the Monmouth Coffee Company is an 
+    oasis of darkly roasted intensity in a desert of over steamed slosh.
+  </p>
+  <p>
+    The staff are super friendly and you can deliberate with them over which
+    coffee you want your chest hair raising espresso to be made with today.
+  </p>
+  <p>
+    Look downstairs as you're queuing and you'll see their original roasting 
+    kitchen. There are small, shared wooden tables at the back, benches to perch
+    on out front or you can take away to nearby Seven Dials.
+  </p>
+
+open: |
+  8am to 6.30pm Monday to Saturday
+  Closed on Bank Holidays
+
+address: |
+  27 Monmouth Street
+  Covent Garden
+  London WC2H 9EU
+
+latitude: '51.5143789'
+longitude: '-0.1269052'
+
+google_place_reference: '6958950932794294817'
+foursquare_venue_id: '144187'
+facebook_graph_id: '154942167868073'
+
+url: 'http://www.monmouthcoffee.co.uk/'
+
+categories:
+- coffee
+
+tags:
+- character
+- cheap

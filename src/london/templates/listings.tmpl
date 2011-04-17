@@ -1,17 +1,25 @@
 <%inherit file="page.tmpl"/>
 
-${self.header('Categories')}
-
-<div data-role="content">  
-  % for item in categories:
-    <a href="/categories/${item.value}/" 
-        class="glyphish"
-        data-role="button" 
-        data-icon="london-${item.value}"
-        data-iconpos="top">
-      ${item.label}
-    </a>
-  % endfor
+<div data-role="page">
+  ${self.header('London Mobile Guide')}
+  <div data-role="content">  
+    % for item in categories:
+      <a href="/categories/${item.value}/" 
+          class="glyphish"
+          data-role="button" 
+          data-icon="london-${item.value}"
+          data-iconpos="top">
+        ${item.label}
+      </a>
+    % endfor
+  </div>
+  <script type="text/javascript">
+    $(document).ready(
+      function () {
+        $("div:jqmData(role='page')").bind('pagecreate', $.london.locate);
+      }
+      
+    );
+  </script>
+  ${self.footer('listings')}
 </div>
-
-${self.footer('listings')}

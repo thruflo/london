@@ -29,6 +29,7 @@ setup(
         'PasteScript',
         'WSGIUtils',
         'SQLAlchemy==0.6.7',
+        'pyyaml',
         'setuptools-git==0.3.4'
     ],
     entry_points = {
