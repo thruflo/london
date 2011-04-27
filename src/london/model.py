@@ -48,8 +48,8 @@ places_users_viewed = Table(
     Column('place_id', Integer, ForeignKey('places.id')),
     Column('user_id', Integer, ForeignKey('users.id'))
 )
-places_users_bookmarked = Table(
-    'places_users_bookmarked',
+places_users_favourites = Table(
+    'places_users_favourites',
     SQLModel.metadata,
     Column('place_id', Integer, ForeignKey('places.id')),
     Column('user_id', Integer, ForeignKey('users.id'))
@@ -73,7 +73,7 @@ class User(SQLModel):
     is_admin = Column(Boolean, default=False)
     
     viewed = relation("Place", secondary=places_users_viewed)
-    bookmarked = relation("Place", secondary=places_users_bookmarked)
+    favourites = relation("Place", secondary=places_users_favourites)
     
     def __repr__(self):
         return '<user username="%s">' % self.username
@@ -127,7 +127,7 @@ class Place(SQLModel):
     facebook_graph_id = Column(Unicode, nullable=False, unique=True)
     
     viewed = relation("User", secondary=places_users_viewed)
-    bookmarked = relation("User", secondary=places_users_bookmarked)
+    favourites = relation("User", secondary=places_users_favourites)
     
     categories = relation("Category", secondary=places_categories)
     tags = relation("Tag", secondary=places_tags)
@@ -137,11 +137,11 @@ class Place(SQLModel):
         
     
     
-    def bookmark(self, user, should_commit=True):
-        if not user in self.bookmarked:
+    def favourite(self, user, should_commit=True):
+        if not user in self.favourites:
             if should_commit:
                 db.begin()
-            self.bookmarked.append(user)
+            self.favourites.append(user)
             db.add(self)
             if should_commit:
                 try:
@@ -153,11 +153,11 @@ class Place(SQLModel):
             
         
     
-    def unbookmark(self, user, should_commit=True):
-        if user in self.bookmarked:
+    def unfavourite(self, user, should_commit=True):
+        if user in self.favourites:
             if should_commit:
                 db.begin()
-            self.bookmarked.remove(user)
+            self.favourites.remove(user)
             db.add(self)
             if should_commit:
                 try:
@@ -189,27 +189,24 @@ class Place(SQLModel):
         return user in self.viewed
         
     
-    def bookmarked_by(self, user):
-        return user in self.bookmarked
+    def favourites_by(self, user):
+        return user in self.favourites
         
     
     
     @classmethod
-    def get_by_category(cls, value, ll):
+    def get_by_category(cls, value, location=None):
         """
         """
         
         query = db.query(cls).join('categories').filter(Category.value==value)
         
         # if we have a location, sort by nearest to the user
-        if ll is not None:
-            parts = ll.split('%2C')
-            latitude = parts[0]
-            longitude = parts[1]
+        if location is not None:
             query = query.order_by(
                 asc(
-                    func.abs(Place.latitude - latitude) +
-                    func.abs(Place.longitude - longitude)
+                    func.abs(Place.latitude - location.latitude) +
+                    func.abs(Place.longitude - location.longitude)
                 )
             )
         else: # otherwise sort by title

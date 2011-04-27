@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      <%def name="title()">Welcome</%def>${self.title()} :: Mobile London Guide
+    </title>
+    % if not request.headers.get('HTTP_X_REQUESTED_WITH', '').lower() == 'xmlhttprequest':
+      <link rel="stylesheet" 
+          href="${get_static_url('css/reset.css')}"
+      />
+      <link rel="stylesheet"
+          href="${get_static_url('jquery.mobile-1.0a4.1/jquery.mobile-1.0a4.1.min.css')}"
+      />
+      <link rel="stylesheet" 
+          href="${get_static_url('css/style.css')}"
+      />
+      <script type="text/javascript" 
+          src="${get_static_url('js/jquery-1.5.2.min.js')}">
+      </script>
+      <script type="text/javascript" 
+          src="${get_static_url('js/jquery.cookie.js')}">
+      </script>
+      <script type="text/javascript" 
+          src="${get_static_url('js/jquery.geolocation.js')}">
+      </script>
+      <script type="text/javascript" 
+          src="${get_static_url('js/client.js')}">
+      </script>
+      <script type="text/javascript"
+          src="${get_static_url('jquery.mobile-1.0a4.1/jquery.mobile-1.0a4.1.min.js')}">
+      </script>
+    % endif
+    <%def name="extraheaders()"></%def>${self.extraheaders()}
+  </head>
+  <body>
+    <%def name="header(heading)">
+      <div data-role="header" data-backbtn="false">
+        <h1>${heading}</h1>
+        <a href="/options/" data-icon="gear" data-iconpos="right" class="ui-btn-right">
+          Options</a>
+      </div>
+    </%def>
+    ${next.body()}
+  </body>
+</html>
+
+
+<!-- 
+  
+  not used
+  
+  
+-->
+
+<%def name="footer(active)">
+  <div data-role="footer" data-id="footer" data-position="fixed">
+    <div data-role="navbar">
+      <ul>
+        <li>
+          <a href="/" data-direction="reverse"
+              class="ui-state-persist ${active == 'listings' and 'ui-btn-active' or ''}">
+            Listings</a>
+        </li>
+        <li>
+          <a href="/map/"
+              class="ui-state-persist ${active == 'map' and 'ui-btn-active' or ''}">
+            Map</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</%def>
+

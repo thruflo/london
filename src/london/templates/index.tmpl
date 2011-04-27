@@ -1,7 +1,9 @@
-<%inherit file="page.tmpl"/>
+<%inherit file="base.tmpl"/>
+
+<%def name="title()">Welcome</%def>
 
 <div data-role="page">
-  ${self.header('London Mobile Guide')}
+  ${self.header('Mobile London Guide')}
   <div data-role="content">  
     % for item in categories:
       <a href="/categories/${item.value}/" 
@@ -13,13 +15,4 @@
       </a>
     % endfor
   </div>
-  <script type="text/javascript">
-    $(document).ready(
-      function () {
-        $("div:jqmData(role='page')").bind('pagecreate', $.london.locate);
-      }
-      
-    );
-  </script>
-  ${self.footer('listings')}
 </div>

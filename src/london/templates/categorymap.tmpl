@@ -1,0 +1,18 @@
+<%inherit file="category.tmpl"/>
+
+<%def name="page()">
+  <div data-role="page">
+    ${self.header('map')}
+    <div data-role="content">  
+      <div id="map"></div>
+      <ul id="places">
+        % for item in places:
+          <li id="${item.id}" latitude="${item.latitude}" longitude="${item.longitude}">
+            <a href="/places/${item.id}/" data-role="button">
+              ${item.title}</a>
+          </li>
+        % endfor
+      </ul>
+    </div>
+  </div>
+</%def>
