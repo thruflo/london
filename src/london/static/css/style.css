@@ -30,3 +30,14 @@
   .ui-icon-london-drink {
     background: url('/static/img/icons/drink.png') 50% 50% no-repeat;
   }
+
+.ui-icon-london-map {
+  background-image: url('/static/img/icons/map2.png');
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}
+.ui-icon-london-listings {
+  background-image: url('/static/img/icons/listings2.png');
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}

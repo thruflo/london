@@ -1,0 +1,19 @@
+<%inherit file="base.tmpl"/>
+
+<%def name="title()">${place.title}</%def>
+
+<div data-role="page">
+  <div data-role="header">
+    <h1>
+      ${place.title}
+    </h1>
+    <a href="/options/" 
+        data-icon="gear" 
+        data-transition="pop"
+        data-iconpos="notext" 
+        class="ui-btn-right">Options</a>
+  </div>
+  <div data-role="content">
+    ${place.title}
+  </div>
+</div>

@@ -36,8 +36,11 @@
     <%def name="header(heading)">
       <div data-role="header" data-backbtn="false">
         <h1>${heading}</h1>
-        <a href="/options/" data-icon="gear" data-iconpos="right" class="ui-btn-right">
-          Options</a>
+        <a href="/options/" 
+            data-icon="gear" 
+            data-transition="pop"
+            data-iconpos="notext"
+            class="ui-btn-right">Options</a>
       </div>
     </%def>
     ${next.body()}
