@@ -16,7 +16,7 @@ mapping = [(
         r'/categories/(\w*)/map/',
         CategoryMap
     ), (
-        r'/places/([0-9]*)/',
+        r'/places/(\w*)/',
         Place
     ), (
         r'/options/',

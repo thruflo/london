@@ -91,11 +91,11 @@ class Place(RequestHandler):
     """ Information about a specific place.
     """
     
-    def get(self, id):
+    def get(self, value):
         """
         """
         
-        place = model.Place.get_by_id(id)
+        place = model.Place.get_by_value(value)
         return self.render('place.tmpl', place=place)
         
     

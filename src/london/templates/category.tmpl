@@ -14,7 +14,7 @@
     <a href="/options/" 
         data-icon="gear" 
         data-transition="pop"
-        data-iconpos="notext" 
+        data-iconpos="notext"
         class="ui-btn-right">Options</a>
     <div data-role="navbar">
       <ul>
@@ -47,7 +47,7 @@
     ${self.header('listings')}
     <div data-role="content">
       % for item in places:
-        <a href="/places/${item.id}/" data-role="button">
+        <a href="/places/${item.value}/" data-role="button">
           ${item.title}</a>
       % endfor
     </div>

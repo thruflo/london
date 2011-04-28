@@ -14,7 +14,7 @@ import logging
 import re
 special_character = re.compile(r'[^a-z0-9]', re.U | re.I)
 
-from os.path import abspath, dirname, join as join_path
+from os.path import abspath, basename, dirname, join as join_path
 
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Table, Column, MetaData, ForeignKey
@@ -88,6 +88,15 @@ class QueryMixin(object):
         
     
     
+    @classmethod
+    def get_by_value(cls, value):
+        if not isinstance(value, unicode):
+            value = unicode(value)
+        query = cls.query.filter_by(value=value)
+        return query.first()
+        
+    
+    
 
 
 class User(SQLModel, QueryMixin):
@@ -112,14 +121,14 @@ class User(SQLModel, QueryMixin):
     
     @classmethod
     def authenticate(cls, username, password):
-        query = Session().query(cls).filter_by(username=username, password=password)
+        query = cls.query.filter_by(username=username, password=password)
         return query.first()
         
     
     
     @classmethod
     def get_all(cls):
-        query = Session().query(cls).order_by(cls.username)
+        query = cls.query.order_by(cls.username)
         return query.all()
         
     
@@ -128,7 +137,7 @@ class User(SQLModel, QueryMixin):
     def get_by_username(cls, username):
         if not isinstance(username, unicode):
             username = unicode(username)
-        query = Session().query(cls).filter_by(username=username)
+        query = cls.query.filter_by(username=username)
         return query.one()
         
     
@@ -141,6 +150,7 @@ class Place(SQLModel, QueryMixin):
     __tablename__ = 'places'
     
     id = Column(Integer, primary_key=True, nullable=False)
+    value = Column(Unicode, nullable=False, unique=True)
     
     title = Column(Unicode, nullable=False, unique=True)
     description = Column(UnicodeText, nullable=False)
@@ -267,17 +277,8 @@ class Category(SQLModel, QueryMixin):
     
     @classmethod
     def get_all(cls):
-        query = Session().query(cls).order_by(cls.sort_order)
+        query = cls.query.order_by(cls.sort_order)
         return query.all()
-        
-    
-    
-    @classmethod
-    def get_by_value(cls, value):
-        if not isinstance(value, unicode):
-            value = unicode(value)
-        query = Session().query(cls).filter_by(value=value)
-        return query.first()
         
     
     
@@ -304,7 +305,7 @@ class Tag(SQLModel, QueryMixin):
     def get_by_value(cls, value):
         if not isinstance(value, unicode):
             value = unicode(value)
-        query = Session().query(cls).filter_by(value=value)
+        query = cls.query.filter_by(value=value)
         return query.one()
         
     
@@ -348,6 +349,7 @@ def bootstrap():
     
     for path in directories:
         
+        folder_name = path.split
         index_file = open(join_path(path, 'index.yaml'))
         data = load(index_file, Loader=Loader)
         index_file.close()
@@ -357,6 +359,7 @@ def bootstrap():
         image_file.close()
         
         place = Place(
+            value = basename(path),
             title = data['title'],
             description = data['description'],
             latitude = float(data['latitude']),

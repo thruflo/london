@@ -10,6 +10,8 @@ from weblayer.route import RegExpPathRouter
 
 from weblayer import Bootstrapper, WSGIApplication
 
+from coffeecup import CoffeeScriptMiddleware
+
 def factory(global_config, **local_conf):
     """
     """
@@ -53,6 +55,16 @@ def factory(global_config, **local_conf):
         code.interact()
     
     # return a wsgi app
-    return WSGIApplication(settings, path_router)
+    app = WSGIApplication(settings, path_router)
     
+    # wrapped with the CoffeeScriptMiddleware
+    return CoffeeScriptMiddleware(
+        app, 
+        static_dir=config['static_files_path'],
+        find_on_startup=True
+    )
+    
+    
+
+
 
