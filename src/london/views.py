@@ -95,7 +95,8 @@ class Place(RequestHandler):
         """
         """
         
-        raise NotImplementedError
+        place = model.Place.get_by_id(id)
+        return self.render('place.tmpl', place=place)
         
     
     

@@ -3,20 +3,18 @@
 
 """We use SQLAlchemy_ in declarative_ mode.
   
+  Note that there *must* be a ``weblayer.interfaces.ISettings`` instance
+  registered before importing this module.
+  
   .. _SQLAlchemy: http://www.sqlalchemy.org/
   .. _declarative: http://www.sqlalchemy.org/docs/reference/ext/declarative.html
 """
 
-import datetime
 import logging
-import math
-import os
-import sys
 import re
-
 special_character = re.compile(r'[^a-z0-9]', re.U | re.I)
 
-from os.path import dirname, join as join_path
+from os.path import abspath, dirname, join as join_path
 
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Table, Column, MetaData, ForeignKey
@@ -24,10 +22,30 @@ from sqlalchemy import BigInteger, Boolean, Date, Float, Integer, LargeBinary
 from sqlalchemy import PickleType, Unicode, UnicodeText
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import mapper, sessionmaker, relation, synonym
+from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker, synonym
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.pool import NullPool
 from sqlalchemy.sql.expression import asc
 
+def engine_factory():
+    """ Creates the engine specified by the application settings.
+    """
+    
+    from weblayer.interfaces import ISettings
+    from weblayer.component import registry
+    
+    settings = registry.getUtility(ISettings)
+    
+    if settings.get('db') == 'sqlite':
+        sqlite_path = 'sqlite:///%s' % abspath(settings['sqlite_path'])
+        return create_engine(sqlite_path, poolclass=NullPool, echo=False)
+    else: 
+        raise NotImplementedError
+    
+
+engine = engine_factory()
+
+Session = scoped_session(sessionmaker(bind=engine))
 SQLModel = declarative_base()
 
 places_categories = Table(
@@ -55,23 +73,35 @@ places_users_favourites = Table(
     Column('user_id', Integer, ForeignKey('users.id'))
 )
 
-class User(SQLModel):
+class QueryMixin(object):
+    """
+    """
+    
+    query = Session.query_property()
+    
+    @classmethod
+    def get_by_id(cls, id):
+        """
+        """
+        
+        return cls.query.get(id)
+        
+    
+    
+
+
+class User(SQLModel, QueryMixin):
     """
     """
     
     __tablename__ = 'users'
     
     id = Column(Integer, primary_key=True, nullable=False)
-    
     name = Column(Unicode)
-    
     username = Column(Unicode, unique=True)
     password = Column(Unicode)
-    
     email_address = Column(Unicode, unique=True)
-    
     is_admin = Column(Boolean, default=False)
-    
     viewed = relation("Place", secondary=places_users_viewed)
     favourites = relation("Place", secondary=places_users_favourites)
     
@@ -82,14 +112,14 @@ class User(SQLModel):
     
     @classmethod
     def authenticate(cls, username, password):
-        query = db.query(cls).filter_by(username=username, password=password)
+        query = Session().query(cls).filter_by(username=username, password=password)
         return query.first()
         
     
     
     @classmethod
     def get_all(cls):
-        query = db.query(cls).order_by(cls.username)
+        query = Session().query(cls).order_by(cls.username)
         return query.all()
         
     
@@ -98,13 +128,13 @@ class User(SQLModel):
     def get_by_username(cls, username):
         if not isinstance(username, unicode):
             username = unicode(username)
-        query = db.query(cls).filter_by(username=username)
+        query = Session().query(cls).filter_by(username=username)
         return query.one()
         
     
     
 
-class Place(SQLModel):
+class Place(SQLModel, QueryMixin):
     """
     """
     
@@ -138,49 +168,52 @@ class Place(SQLModel):
     
     
     def favourite(self, user, should_commit=True):
+        session = Session()
         if not user in self.favourites:
             if should_commit:
-                db.begin()
+                session.begin()
             self.favourites.append(user)
-            db.add(self)
+            session.add(self)
             if should_commit:
                 try:
-                    db.commit()
+                    session.commit()
                 except IntegrityError, err:
                     logging.err(err)
-                    db.rollback()
+                    session.rollback()
                 
             
         
     
     def unfavourite(self, user, should_commit=True):
+        session = Session()
         if user in self.favourites:
             if should_commit:
-                db.begin()
+                session.begin()
             self.favourites.remove(user)
-            db.add(self)
+            session.add(self)
             if should_commit:
                 try:
-                    db.commit()
+                    session.commit()
                 except IntegrityError, err:
                     logging.err(err)
-                    db.rollback()
+                    session.rollback()
                 
             
         
     
     def mark_viewed(self, user, should_commit=True):
+        session = Session()
         if not user in self.viewed:
             if should_commit:
-                db.begin()
+                session.begin()
             self.viewed.append(user)
-            db.add(self)
+            session.add(self)
             if should_commit:
                 try:
-                    db.commit()
+                    session.commit()
                 except IntegrityError, err:
                     logging.err(err)
-                    db.rollback()
+                    session.rollback()
         
         
     
@@ -199,7 +232,7 @@ class Place(SQLModel):
         """
         """
         
-        query = db.query(cls).join('categories').filter(Category.value==value)
+        query = cls.query.join('categories').filter(Category.value==value)
         
         # if we have a location, sort by nearest to the user
         if location is not None:
@@ -217,8 +250,7 @@ class Place(SQLModel):
     
     
 
-
-class Category(SQLModel):
+class Category(SQLModel, QueryMixin):
     """
     """
     
@@ -235,7 +267,7 @@ class Category(SQLModel):
     
     @classmethod
     def get_all(cls):
-        query = db.query(cls).order_by(cls.sort_order)
+        query = Session().query(cls).order_by(cls.sort_order)
         return query.all()
         
     
@@ -244,7 +276,7 @@ class Category(SQLModel):
     def get_by_value(cls, value):
         if not isinstance(value, unicode):
             value = unicode(value)
-        query = db.query(cls).filter_by(value=value)
+        query = Session().query(cls).filter_by(value=value)
         return query.first()
         
     
@@ -255,7 +287,7 @@ class Category(SQLModel):
     
     
 
-class Tag(SQLModel):
+class Tag(SQLModel, QueryMixin):
     """
     """
     
@@ -272,7 +304,7 @@ class Tag(SQLModel):
     def get_by_value(cls, value):
         if not isinstance(value, unicode):
             value = unicode(value)
-        query = db.query(cls).filter_by(value=value)
+        query = Session().query(cls).filter_by(value=value)
         return query.one()
         
     
@@ -284,30 +316,13 @@ class Tag(SQLModel):
     
 
 
-def db_factory(settings):
-    """
-    """
-    
-    import logging
-    logging.info(settings)
-    
-    # use sqlite in development
-    if settings['dev_mode']: 
-        sqlite_path = 'sqlite:///%s' % os.path.abspath(settings['sqlite_path'])
-        engine = create_engine(sqlite_path, echo=False)
-    else: # use postgresql in production
-        raise NotImplementedError
-    SQLModel.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine, autocommit=True)
-    session = Session()
-    return session
-    
+SQLModel.metadata.create_all(engine)
 
-def bootstrap(session):
-    """ Populate the database.
+def bootstrap():
+    """ Populate the database from scratch.
     """
     
-    session.begin()
+    session = Session()
     
     # create categories
     i = 0
@@ -327,17 +342,17 @@ def bootstrap(session):
     from glob import glob
     from yaml import load, Loader
     
-    here = os.path.dirname(__file__)
-    data_directory_path = os.path.join(here, 'static', 'data')
-    directories = glob(os.path.join(data_directory_path, '*'))
+    here = dirname(__file__)
+    data_directory_path = join_path(here, 'static', 'data')
+    directories = glob(join_path(data_directory_path, '*'))
     
     for path in directories:
         
-        index_file = open(os.path.join(path, 'index.yaml'))
+        index_file = open(join_path(path, 'index.yaml'))
         data = load(index_file, Loader=Loader)
         index_file.close()
         
-        image_file = open(os.path.join(path, 'thumbnail.jpg'), 'rb')
+        image_file = open(join_path(path, 'thumbnail.jpg'), 'rb')
         image_data = image_file.read()
         image_file.close()
         
