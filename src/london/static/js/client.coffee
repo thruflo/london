@@ -15,7 +15,7 @@ $ = jQuery
 locations =
     central_london:
         title: 'Central London'
-        location: new google.maps.LatLng(
+        latlng: new google.maps.LatLng(
             51.5001524, 
             -0.1262362
         )
@@ -26,7 +26,7 @@ class Locater
     ### Encapsulates location detection and storage.
     ###
     
-    constructor: (@location, @timeout, @delay=60000) ->
+    constructor: (@latlng, @timeout, @delay=60000) ->
         this.initial_delay = @delay
         
     
@@ -59,12 +59,12 @@ class Locater
         
     
     store: (location) ->
-        ### Store ``location`` as ``this.location`` and in the 'll' cookie.
+        ### Store ``location`` as ``this.latlng`` and in the 'll' cookie.
         ###
         
         console.log('store location', location)
         
-        this.location = new google.maps.LatLng(
+        this.latlng = new google.maps.LatLng(
             location.latitude,
             location.longitude
         )
@@ -95,7 +95,7 @@ class Locater
     
     
 
-locater = new Locater(locations.central_london.location)
+locater = new Locater(locations.central_london.latlng)
 
 handle = 
     ### Event handlers.
@@ -152,7 +152,7 @@ handle =
         else if path.match(/\/categories\/\w*\/map\//)
             target = $('#map')
             options =
-                center: locater.location
+                center: locater.latlng
                 mapTypeId: google.maps.MapTypeId.ROADMAP
                 zoom: 13
             map = new google.maps.Map(target.get(0), options)

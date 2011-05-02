@@ -12,13 +12,13 @@
   locations = {
     central_london: {
       title: 'Central London',
-      location: new google.maps.LatLng(51.5001524, -0.1262362)
+      latlng: new google.maps.LatLng(51.5001524, -0.1262362)
     }
   };
   Locater = (function() {
     /* Encapsulates location detection and storage.
-    */    function Locater(location, timeout, delay) {
-      this.location = location;
+    */    function Locater(latlng, timeout, delay) {
+      this.latlng = latlng;
       this.timeout = timeout;
       this.delay = delay != null ? delay : 60000;
       this.initial_delay = this.delay;
@@ -46,9 +46,9 @@
       }, this), this.delay);
     };
     Locater.prototype.store = function(location) {
-      /* Store ``location`` as ``this.location`` and in the 'll' cookie.
+      /* Store ``location`` as ``this.latlng`` and in the 'll' cookie.
       */      console.log('store location', location);
-      this.location = new google.maps.LatLng(location.latitude, location.longitude);
+      this.latlng = new google.maps.LatLng(location.latitude, location.longitude);
       return $.cookie('ll', "" + location.latitude + "," + location.longitude);
     };
     Locater.prototype.locate = function(callback, prompt_on_failure) {
@@ -76,7 +76,7 @@
     };
     return Locater;
   })();
-  locater = new Locater(locations.central_london.location);
+  locater = new Locater(locations.central_london.latlng);
   handle = {
     /* Event handlers.
         */
@@ -123,7 +123,7 @@
       } else if (path.match(/\/categories\/\w*\/map\//)) {
         target = $('#map');
         options = {
-          center: locater.location,
+          center: locater.latlng,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
           zoom: 13
         };
