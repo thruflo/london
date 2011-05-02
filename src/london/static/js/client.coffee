@@ -124,6 +124,7 @@ handle =
                 latitude: parts[0]
                 longitude: parts[1]
             locater.store(location)
+            locator.schedule_update()
         else
             locater.locate()
         
@@ -145,7 +146,7 @@ handle =
         if path is '/nolocation/'
             $('#try-again').click(
                 ->
-                    location.locate()
+                    locater.locate()
                     page.dialog('close')
                     return false
             )

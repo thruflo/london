@@ -101,6 +101,7 @@
           longitude: parts[1]
         };
         locater.store(location);
+        locator.schedule_update();
       } else {
         locater.locate();
       }
@@ -116,7 +117,7 @@
       path = page.jqmData('url');
       if (path === '/nolocation/') {
         return $('#try-again').click(function() {
-          location.locate();
+          locater.locate();
           page.dialog('close');
           return false;
         });
