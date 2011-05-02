@@ -6,8 +6,9 @@
     .. _`Coffeescript`: http://jashkenas.github.com/coffee-script/
 
 
-  */  var Locater, doc, handle, locater, locations;
+  */  var $, Locater, handle, locater, locations;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  $ = jQuery;
   locations = {
     central_london: {
       title: 'Central London',
@@ -69,7 +70,7 @@
         }
       }, this), function() {
         if (prompt_on_failure) {
-          return jQuery.mobile.changePage('/nolocation/', 'pop');
+          return $.mobile.changePage('/nolocation/', 'pop');
         }
       });
     };
@@ -92,7 +93,7 @@
     ready: function() {
       /* Handle the application loading into the browser for the first time.
       */      var ll, location, pages, parts;
-      ll = jQuery.cookie('ll');
+      ll = $.cookie('ll');
       if (ll) {
         parts = ll.split(',');
         location = {
@@ -103,7 +104,7 @@
       } else {
         locater.locate();
       }
-      pages = jQuery('div:jqmData(role="page")');
+      pages = $('div:jqmData(role="page")');
       return pages.live('pagebeforecreate', function(event) {
         return handle.pageinserted(event);
       });
@@ -111,16 +112,16 @@
     pageinserted: function(event) {
       /* Handle a new page being inserted into the DOM.
       */      var map, options, page, path, target;
-      page = jQuery(event.target);
+      page = $(event.target);
       path = page.jqmData('url');
       if (path === '/nolocation/') {
-        return jQuery('#try-again').click(function() {
+        return $('#try-again').click(function() {
           location.locate();
           page.dialog('close');
           return false;
         });
       } else if (path.match(/\/categories\/\w*\/map\//)) {
-        target = jQuery('#map');
+        target = $('#map');
         options = {
           center: locater.location,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -140,8 +141,7 @@
       }
     }
   };
-  doc = jQuery(document);
-  doc.bind('mobileinit', function() {
-    return doc.ready(handle.ready);
+  $(document).bind('mobileinit', function() {
+    return $(document).ready(handle.ready);
   });
 }).call(this);

@@ -10,7 +10,7 @@
   
 ###
 
-$ = $
+$ = jQuery
 
 locations =
     central_london:
